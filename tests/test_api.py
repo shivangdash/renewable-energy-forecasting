@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 
@@ -17,7 +18,7 @@ def _train_test_model(path: str) -> None:
     model.save_model(path)
 
 
-def test_predict_endpoint_returns_prediction_and_shap(tmp_path) -> None:
+def test_predict_endpoint_returns_prediction_and_shap(tmp_path: Path) -> None:
     model_path = tmp_path / "test_model.json"
     log_path = tmp_path / "predictions.log"
     _train_test_model(str(model_path))

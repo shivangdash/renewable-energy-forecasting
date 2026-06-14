@@ -9,7 +9,7 @@ from renewable_energy_forecasting.model import ModelService
 
 
 class WeatherFeatures(BaseModel):
-    region_id: int = Field(ge=0, le=20)
+    region_id: int = Field(ge=0, le=7)
     is_solar: int = Field(ge=0, le=1)
     temperature: float
     humidity: float = Field(ge=0, le=100)

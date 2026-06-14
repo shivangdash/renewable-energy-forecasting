@@ -24,14 +24,15 @@ def train_and_log_model(n_samples: int = 5000, seed: int = 42) -> dict:
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=seed)
 
-    model = xgb.XGBRegressor(
-        n_estimators=300,
-        max_depth=6,
-        learning_rate=0.05,
-        subsample=0.9,
-        colsample_bytree=0.9,
-        random_state=seed,
-    )
+    model_params = {
+        "n_estimators": 300,
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "subsample": 0.9,
+        "colsample_bytree": 0.9,
+        "random_state": seed,
+    }
+    model = xgb.XGBRegressor(**model_params)
     model.fit(X_train, y_train)
 
     preds = model.predict(X_test)
@@ -49,17 +50,7 @@ def train_and_log_model(n_samples: int = 5000, seed: int = 42) -> dict:
     mlflow.set_experiment(SETTINGS.experiment_name)
 
     with mlflow.start_run():
-        mlflow.log_params(
-            {
-                "n_samples": n_samples,
-                "seed": seed,
-                "n_estimators": 300,
-                "max_depth": 6,
-                "learning_rate": 0.05,
-                "subsample": 0.9,
-                "colsample_bytree": 0.9,
-            }
-        )
+        mlflow.log_params({"n_samples": n_samples, "seed": seed, **model_params})
         mlflow.log_metrics({"rmse": rmse, "mae": mae, "r2": r2})
         mlflow.log_artifact(versioned_model_path)
         mlflow.xgboost.log_model(
