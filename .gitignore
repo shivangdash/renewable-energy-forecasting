@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+mlruns/
+models/*.json
+models/*.pkl
+logs/*.log
+.DS_Store
