@@ -47,7 +47,9 @@ class ModelService:
         return PredictionResult(prediction=prediction, shap_values=shap_values)
 
     def _log_prediction(self, features: Dict[str, float], prediction: float, shap_values: Dict[str, float]) -> None:
-        os.makedirs(os.path.dirname(self.prediction_log_path), exist_ok=True)
+        log_dir = os.path.dirname(self.prediction_log_path)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
         record = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "features": features,

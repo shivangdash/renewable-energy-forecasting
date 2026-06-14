@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 
@@ -9,7 +10,7 @@ from renewable_energy_forecasting.model import ModelService
 import xgboost as xgb
 
 
-def _train_test_model(path: str) -> None:
+def _create_test_model(path: str) -> None:
     data = generate_synthetic_weather_energy_data(n_samples=120, seed=4)
     X = data[FEATURE_COLUMNS]
     y = data["grid_output_mw"]
@@ -21,7 +22,7 @@ def _train_test_model(path: str) -> None:
 def test_predict_endpoint_returns_prediction_and_shap(tmp_path: Path) -> None:
     model_path = tmp_path / "test_model.json"
     log_path = tmp_path / "predictions.log"
-    _train_test_model(str(model_path))
+    _create_test_model(str(model_path))
 
     app.dependency_overrides[get_model_service] = lambda: ModelService(
         model_path=str(model_path), prediction_log_path=str(log_path)
@@ -46,5 +47,11 @@ def test_predict_endpoint_returns_prediction_and_shap(tmp_path: Path) -> None:
     assert isinstance(body["prediction"], float)
     assert set(body["shap_values"].keys()) == set(FEATURE_COLUMNS)
     assert os.path.exists(log_path)
+
+    with open(log_path, "r", encoding="utf-8") as f:
+        record = json.loads(f.readlines()[-1])
+    assert record["features"] == payload
+    assert isinstance(record["prediction"], float)
+    assert set(record["shap_values"].keys()) == set(FEATURE_COLUMNS)
 
     app.dependency_overrides.clear()
